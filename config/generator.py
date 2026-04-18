@@ -1,309 +1,212 @@
-import google.generativeai as genai
+# config/generator.py
 import calendar
+import random
 from datetime import datetime
 import os
 from google import genai as google_genai
 from google.genai import types
+from config.gemini_client import generate_post
 
-# ─── CONFIGURATION ────────────────────────────────────
+# ─── CLIENT SETUP ─────────────────────────────────────
 client = google_genai.Client(
-    api_key=os.environ.get("GEMINI_API_KEY"),
+    api_key=os.environ.get("GEMINI_API_KEY")
 )
 
-MODEL = "gemini-1.5-flash"
+MODEL = "gemini-2.0-flash"
 
-
-# ─── EXPERT LINKEDIN TRAINING SYSTEM ──────────────────
+# ─── SYSTEM PROMPT ────────────────────────────────────
 ENGAGEMENT_SYSTEM_PROMPT = """
-You are an expert LinkedIn post writer trained to create HIGH-ENGAGEMENT, 
-HUMAN-TONE posts that make professionals think differently.
+You are a LinkedIn viral content strategist + psychographic expert.
+You understand what makes professionals STOP scrolling and FEEL something.
 
-CRITICAL RULES (Never break these):
-1. HOOK FIRST: Opening line must use ONE of these patterns:
-   - Identify tension: "Most X assume Y, but actually..."
-   - Contrarian take: "The assumption is wrong. Here's why..."
-   - Vulnerability: "I wasted 3 years learning something simple..."
-   - Market observation: "I'm seeing this pattern across X companies..."
-   - Challenge assumption: "Everyone believes Y but data shows..."
+PSYCHOLOGY RULES:
+- Trigger curiosity gap: reader must feel "I need to finish this"
+- Use social proof or pattern recognition ("I've seen this across 50+ teams")
+- Make them feel SEEN, not lectured
+- One insight only — depth beats breadth
 
-2. SENTENCE STRUCTURE:
-   - First line: 12-15 words MAXIMUM
-   - Average all sentences: 12-15 words
-   - Mix short + medium + long for rhythm
-   - Break paragraphs: 2-3 sentences MAX before line break
+HOOK FORMULA (pick one):
+- Pain: "X is killing your [outcome] and you don't see it yet."
+- Contrarian: "Everyone optimizes X. Nobody fixes Y. Y is the problem."
+- Specific loss: "I lost [X] doing what every tutorial recommends."
+- Pattern break: "3 years. 40 codebases. Same mistake. Every time."
 
-3. TONE RULES:
-   - Conversational (like explaining to a peer)
-   - Contractions welcome: "that's", "you're", "don't"
-   - No corporate jargon or buzzwords
-   - Show with examples, don't abstract
-   - Assume reader is thoughtful and busy
+STRUCTURE (strict):
+Line 1: Hook (≤10 words, no emoji, no question)
+Line 2-3: Problem evidence (specific, not abstract)
+Line 4-5: Reframe (the insight)
+Line 6: Stakes (why it matters now)
+Line 7: CTA — one of: "Save this." / "Which one are you?" / "Seen this too?"
 
-4. ABSOLUTE PROHIBITIONS (Don't do these):
-   - ❌ NO emojis (kill credibility in professional context)
-   - ❌ NO questions as hooks ("Have you ever felt...")
-   - ❌ NO generic openers ("In today's world", "Let's be honest")
-   - ❌ NO forced engagement ("Comment below", "Tag someone")
-   - ❌ NO multiple scattered ideas
-   - ❌ NO false humility ("I'm no expert but...")
-   - ❌ NO vague statements ("This is important")
+PROHIBITIONS:
+- No emojis
+- No "In today's world" / "Let's be honest" / "Game changer"
+- No passive voice
+- No more than 3 sentences per paragraph
+- No abstract claims without a specific example
 
-5. ENGAGEMENT COMES FROM:
-   - Identifying a real tension they FEEL
-   - Offering a fresh frame on familiar problem
-   - Sharing specific evidence/pattern (not abstract)
-   - Making them feel UNDERSTOOD, not targeted
-   - Leaving them thinking differently
-
-6. STRUCTURE:
-   [HOOK - tension/observation/contrast]
-   [SETUP - context/evidence of problem]
-   [INSIGHT - reframed perspective]
-   [STAKES - why this matters]
-   [CLOSING - memorable thought, NOT call-to-action]
-
-7. LENGTH: 150-240 words (tight, focused)
-
-8. CLOSING: NEVER ask "what do you think?" or "DM me"
-   - Instead, end with reflection that invites thinking
-   - Close with insight they can sit with
-
-QUALITY CHECK:
-- Read aloud: Does it sound like a person?
-- Specificity: Any concrete examples?
-- Clarity: One insight or scattered ideas?
-- Authenticity: Genuine insight or performance?
+LENGTH: 120-180 words MAX
+HASHTAGS: 5-7 only, lowercase, relevant
+ALWAYS END WITH: #MuhammadAsim #MehfilAI
 """
 
-
-# ─── DAY THEMES WITH ENGAGEMENT ANGLES ────────────────
+# ─── DAY THEMES ───────────────────────────────────────
 DAY_THEMES = {
     "Monday": {
-        "category": "motivational story or personal experience",
-        "hook_type": "vulnerability",
-        "context": "coding, office life, career, or tech journey",
-        "example": "I spent 2 years learning what took 30 minutes to understand"
+        "category": "real career mistake or industry truth",
+        "hook_type": "specific_loss",
+        "angle": "emotional developer story tied to industry reality — layoffs, wrong tech stack choice, over-engineering, burnout",
+        "seed": "I wasted 2 years on the wrong stack, got laid off after over-engineering, burned out chasing senior title",
+        "industry_tie": "current job market, tech layoffs 2024-2025, hiring freeze reality",
+        "example_hook": "I got laid off 3 days after my best performance review."
     },
     "Tuesday": {
-        "category": "technical explanation of a backend concept",
-        "hook_type": "problem_insight",
-        "context": "NestJS, Node.js with practical examples",
-        "example": "Most developers architect this wrong, causing scaling issues later"
+        "category": "AI tools changing how developers actually work",
+        "hook_type": "contrarian",
+        "angle": "how real teams are using Cursor, Copilot, Claude, v0 in production — not demos, real workflows",
+        "seed": "Cursor replacing junior devs, Claude for code review, Copilot making devs slower not faster, vibe coding consequences",
+        "industry_tie": "AI replacing entry-level roles, developer productivity debate, vibe coding trend 2025",
+        "example_hook": "Cursor didn't make our team faster. It made our codebase worse."
     },
     "Wednesday": {
-        "category": "software architecture or system design concept",
-        "hook_type": "contrarian",
-        "context": "explained clearly with real world use cases",
-        "example": "The architectural pattern everyone uses is backwards for your use case"
+        "category": "system design or architecture decision with real cost",
+        "hook_type": "pattern_break",
+        "angle": "architectural mistake that looks smart but breaks at scale — microservices too early, wrong DB choice, API design debt",
+        "seed": "microservices killed our startup velocity, we moved back to monolith, chose MongoDB and regretted it",
+        "industry_tie": "startups vs big tech architecture, cost of cloud bills, engineering efficiency trend",
+        "example_hook": "We split into 12 microservices at 3 engineers. It nearly killed the company."
     },
     "Thursday": {
-        "category": "frontend React/Next.js or web security/performance",
-        "hook_type": "pattern_observation",
-        "context": "development topic with practical examples",
-        "example": "I'm seeing the same performance mistake across X teams"
+        "category": "industry shift — what skills actually matter in 2025",
+        "hook_type": "assumption_challenge",
+        "angle": "what the job market, AI, and product-focused engineering means for developer careers right now",
+        "seed": "full-stack is dead, T-shaped skills, prompt engineering as core skill, product engineers replacing pure devs",
+        "industry_tie": "hiring trends 2025, AI-era developer skills, what companies actually pay for now",
+        "example_hook": "Companies stopped hiring developers. They started hiring product engineers."
     },
     "Friday": {
-        "category": "advanced database concept or data modeling",
-        "hook_type": "assumption_challenge",
-        "context": "query optimization or data modeling technique",
-        "example": "The indexing strategy everyone teaches is slowing you down"
+        "category": "concrete technical insight with measurable result",
+        "hook_type": "specific_loss",
+        "angle": "one specific optimization or fix with real measurable impact — DB query, API performance, React render, cost reduction",
+        "seed": "N+1 query costing $3k/month, one index cutting response time 10x, removing useEffect fixing entire UX",
+        "industry_tie": "engineering efficiency, cloud cost reduction trend, performance as product feature",
+        "example_hook": "One missing database index was costing us $2,800 a month."
     },
     "Saturday": {
-        "category": "building with AI, agents, automation, LLM use cases",
+        "category": "what AI agents and automation are doing to the industry RIGHT NOW",
         "hook_type": "observation",
-        "context": "practical developer-focused examples",
-        "example": "The way most teams use LLMs is missing 80% of the value"
+        "angle": "real patterns from teams building with LLMs, agents, RAG — not theory, actual production lessons",
+        "seed": "agent loops failing silently, RAG garbage in garbage out, LLM cost spiraling, one prompt replacing pipelines",
+        "industry_tie": "agentic AI wave 2025, AI startups failing, LLM in production reality vs hype",
+        "example_hook": "We built a 6-agent pipeline. A single prompt replaced it."
     },
 }
 
+TRENDING_OVERLAYS = [
+    "vibe coding consequences in production",
+    "AI replacing junior developer roles",
+    "tech layoffs and what survives them",
+    "moving back from microservices to monolith",
+    "Claude vs GPT-4 in real workflows",
+    "developer burnout at AI-era pace",
+    "prompt engineering as a core engineering skill",
+    "cost of cloud bills killing startups",
+]
 
-# ─── GET TODAY'S THEME ────────────────────────────────
+
+# ─── THEME GETTER ─────────────────────────────────────
 def get_todays_theme():
-    """Get today's theme with engagement angle"""
     day = calendar.day_name[datetime.now().weekday()]
-    
+
     if day == "Sunday":
-        print(f"📅 Today is {day} — No post scheduled for Sunday.")
+        print(f"📅 Today is {day} — No post scheduled.")
         return None, None, None
-    
+
     if day not in DAY_THEMES:
         return None, None, None
-    
-    theme_data = DAY_THEMES[day]
-    return day, theme_data, day != "Monday"  # is_technical
+
+    return day, DAY_THEMES[day], day != "Monday"
 
 
-# ─── PROMPT GENERATOR ────────────────────────────────
+# ─── PROMPT BUILDER ───────────────────────────────────
 def build_generation_prompt(day: str, theme_data: dict, is_technical: bool) -> str:
-    """Build the detailed prompt for post generation"""
-    
-    hook_examples = {
-        "vulnerability": "I spent years learning something simple. Here's what I finally understood.",
-        "problem_insight": "Most X assume Y without realizing...",
-        "contrarian": "The assumption is wrong. The reality is different.",
-        "pattern_observation": "I'm seeing this pattern across multiple teams/companies...",
-        "assumption_challenge": "Everyone believes X, but the evidence shows Y..."
-    }
-    
-    example_hook = hook_examples.get(theme_data["hook_type"], "")
-    
-    prompt = f"""
-YOU ARE AN EXPERT LINKEDIN ENGAGEMENT WRITER.
-Follow EVERY rule in your system prompt. No exceptions.
+    trending = random.choice(TRENDING_OVERLAYS)
 
-TODAY: {day}
-
-TOPIC DIRECTION:
-- Category: {theme_data['category']}
-- Context: {theme_data['context']}
-- Hook type: {theme_data['hook_type']}
-- Example: "{example_hook}"
-
-WRITE A LINKEDIN POST:
-
-HOOK (most critical):
-- Opening line MUST use the {theme_data['hook_type']} pattern
-- Example: {example_hook}
-- 12-15 words maximum
-- NO questions, NO clichés
-
-POST STRUCTURE:
-1. Hook line (tension/observation)
-2. Evidence/setup (2-3 sentences showing the problem)
-3. Insight (what people get wrong or what changes perspective)
-4. Stakes/implication (why this matters practically)
-5. Closing (memorable reflection, NOT a question or CTA)
-
-TONE:
-- Conversational like explaining to a colleague
-- Specific examples over abstract claims
-- One clear insight, not scattered ideas
-- Short paragraphs (2-3 sentences max)
-
-TECHNICAL POSTS:
-- Include a code block ONLY if it directly illustrates the point (not required)
-- Code should be <10 lines and immediately understandable
-- Explain the code in plain language
-
-ENGAGEMENT RULES:
-- Average 12-15 words per sentence
-- Mix short + medium + long sentences
-- Read naturally aloud
-- NO emojis
-- NO engagement asks ("DM me", "comment below")
-- NO generic phrases
-
-LENGTH: 150-240 words
-
-CLOSE WITH: A thought or insight that makes them think differently
-(NOT a question, NOT a CTA)
-
-{"# INCLUDE HASHTAGS: 8-10 relevant hashtags for searchability" if is_technical else "# NO hashtags for Monday motivational posts"}
-
-WRITE NOW:
-"""
-    
-    return prompt
-
-
-# ─── STREAM-BASED GENERATION ──────────────────────────
-def generate_post_stream() -> str:
-    """Generate post using streaming with Gemini"""
-    
-    day, theme_data, is_technical = get_todays_theme()
-    
-    if not day:
-        return "No theme for today. Sunday posts are not scheduled."
-    
-    # Build the prompt
-    prompt = build_generation_prompt(day, theme_data, is_technical)
-    
-    # Create content with system prompt
-    contents = [
-        types.Content(
-            role="user",
-            parts=[types.Part.from_text(text=prompt)],
-        )
-    ]
-    
-    config = types.GenerateContentConfig(
-        thinking_config=types.ThinkingConfig(
-            thinking_level="LOW"
-        ),
-        system_instruction=ENGAGEMENT_SYSTEM_PROMPT,
+    hashtag_instruction = (
+        "5-7 hashtags, lowercase, relevant to topic. Always end with #MuhammadAsim #MehfilAI"
+        if is_technical else
+        "3-4 hashtags max. Always end with #MuhammadAsim #MehfilAI"
     )
-    
-    response_text = ""
-    
-    print(f"\n🚀 Generating {day}'s post...")
-    print(f"📋 Theme: {theme_data['category']}")
-    print(f"🎯 Hook type: {theme_data['hook_type']}\n")
-    print("─" * 60)
-    
-    # Stream the response
-    for chunk in client.models.generate_content_stream(
-        model=MODEL,
-        contents=contents,
-        config=config,
-    ):
-        if chunk.text:
-            response_text += chunk.text
-            print(chunk.text, end="", flush=True)
-    
-    print("\n" + "─" * 60)
-    return response_text
+
+    return f"""DAY: {day}
+TOPIC: {theme_data['category']}
+ANGLE: {theme_data['angle']}
+HOOK TYPE: {theme_data['hook_type']}
+SEED IDEAS: {theme_data['seed']}
+TRENDING OVERLAY: weave this in naturally — {trending}
+EXAMPLE HOOK: {theme_data['example_hook']}
+
+WRITE ONE LINKEDIN POST:
+- Hook: ≤10 words, {theme_data['hook_type']} style, no emoji, no question
+- Body: specific insight, one idea only, 120-180 words total
+- CTA: natural, one line ("Save this." or "Which camp are you in?")
+- Hashtags: {hashtag_instruction}
+- Tone: peer-to-peer, direct, no jargon
+- Code block: only if it proves the point in ≤8 lines
+
+DO NOT explain your choices. Output the post only."""
 
 
-# ─── POST QUALITY VALIDATOR ───────────────────────────
+# ─── STREAM GENERATOR ─────────────────────────────────
+def generate_post_stream() -> str:
+    day, theme_data, is_technical = get_todays_theme()
+
+    if not day:
+        return "No post scheduled for Sunday."
+
+    prompt = build_generation_prompt(day, theme_data, is_technical)
+
+    generate_post(prompt)
+
+   
+
+
+# ─── VALIDATOR ────────────────────────────────────────
 def validate_post_quality(post_text: str) -> dict:
-    """Check if post follows engagement rules"""
-    
     issues = []
     warnings = []
-    
-    # Check for prohibited patterns
+
     prohibited = [
-        ("emojis", r"[😀-🙏🌀-🗿🚀-🛿]"),
-        ("Let's be honest", "let's be honest"),
-        ("In today's", "in today"),
-        ("Have you ever", "have you ever"),
-        ("Comment below", "comment below"),
-        ("Tag someone", "tag someone"),
-        ("DM me", "dm me"),
+        ("emojis", "😀"),
+        ("let's be honest", "let's be honest"),
+        ("in today's world", "in today"),
+        ("have you ever", "have you ever"),
+        ("comment below", "comment below"),
+        ("tag someone", "tag someone"),
+        ("dm me", "dm me"),
     ]
-    
+
     post_lower = post_text.lower()
-    
     for check_name, pattern in prohibited:
         if pattern.lower() in post_lower:
-            issues.append(f"❌ Found prohibited phrase: '{check_name}'")
-    
-    # Check word counts
+            issues.append(f"❌ Prohibited phrase: '{check_name}'")
+
     lines = post_text.split('\n')
     first_line = lines[0] if lines else ""
     first_line_words = len(first_line.split())
-    
-    if first_line_words > 15:
-        warnings.append(f"⚠️  First line is {first_line_words} words (should be ≤15)")
-    
-    # Check for questions as hooks
+
+    if first_line_words > 12:
+        warnings.append(f"⚠️  Hook is {first_line_words} words (keep ≤10)")
+
     if first_line.strip().endswith("?"):
-        issues.append("❌ Hook is a question (use statements instead)")
-    
-    # Check paragraph length
-    paragraphs = post_text.split('\n\n')
-    for i, para in enumerate(paragraphs):
-        sentences = [s for s in para.split('.') if s.strip()]
-        if len(sentences) > 4:
-            warnings.append(f"⚠️  Paragraph {i+1} has {len(sentences)} sentences (keep ≤3)")
-    
-    # Word count
+        issues.append("❌ Hook is a question — use a statement")
+
     word_count = len(post_text.split())
-    if word_count < 150:
-        warnings.append(f"⚠️  Post is {word_count} words (aim for 150-240)")
-    elif word_count > 280:
-        warnings.append(f"⚠️  Post is {word_count} words (keep under 280)")
-    
+    if word_count < 120:
+        warnings.append(f"⚠️  Only {word_count} words (aim 120-180)")
+    elif word_count > 200:
+        warnings.append(f"⚠️  {word_count} words — trim it down")
+
     return {
         "valid": len(issues) == 0,
         "issues": issues,
@@ -313,51 +216,50 @@ def validate_post_quality(post_text: str) -> dict:
     }
 
 
-# ─── MAIN EXECUTION ──────────────────────────────────
+# ─── ENFORCE TAGS ─────────────────────────────────────
+def enforce_author_tags(post_text: str) -> str:
+    if "#MuhammadAsim" not in post_text:
+        post_text += " #MuhammadAsim"
+    if "#MehfilAI" not in post_text:
+        post_text += " #MehfilAI"
+    return post_text
+
+
+# ─── MAIN ─────────────────────────────────────────────
 def main():
-    """Main execution function"""
-    
-    print("\n" + "="*60)
-    print("🤖 LINKEDIN POST GENERATOR (Expert-Trained)")
-    print("="*60)
-    
-    # Generate post
-    post = generate_post_stream()
-    
-    # Validate quality
+    print("\n" + "=" * 60)
+    print("🤖 LINKEDIN POST GENERATOR")
+    print("=" * 60)
+
+    raw_post = generate_post_stream()
+
+    post = enforce_author_tags(raw_post)
+
     print("\n\n📊 POST QUALITY CHECK:")
     print("─" * 60)
-    
+
     validation = validate_post_quality(post)
-    
+
     if validation["issues"]:
-        print("🔴 ISSUES FOUND:")
+        print("🔴 ISSUES:")
         for issue in validation["issues"]:
             print(f"  {issue}")
-    
+
     if validation["warnings"]:
         print("\n🟡 SUGGESTIONS:")
         for warning in validation["warnings"]:
             print(f"  {warning}")
-    
+
     if not validation["issues"]:
         print("✅ Post passes quality checks!")
-    
+
     print(f"\n📈 Stats:")
-    print(f"  - Word count: {validation['word_count']}")
-    print(f"  - First line: {validation['first_line_words']} words")
-    print(f"  - Quality: {'✅ READY' if validation['valid'] else '❌ NEEDS REVISION'}")
-    
+    print(f"  Word count : {validation['word_count']}")
+    print(f"  Hook words : {validation['first_line_words']}")
+    print(f"  Quality    : {'✅ READY' if validation['valid'] else '❌ NEEDS REVISION'}")
+
     return post
 
 
 if __name__ == "__main__":
-    generated_post = main()
-    
-    # Save to file for reference
-    day = calendar.day_name[datetime.now().weekday()]
-    if day != "Sunday":
-        filename = f"linkedin_post_{day}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
-        with open(filename, 'w') as f:
-            f.write(generated_post)
-        print(f"\n💾 Post saved to: {filename}")
+    main()

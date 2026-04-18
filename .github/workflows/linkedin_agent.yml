@@ -2,12 +2,13 @@ name: LinkedIn Auto Post Agent
 
 on:
   schedule:
-    - cron: '0 5 * * 1-6'  # 10AM PKT (UTC+5) = 5AM UTC, Mon-Sat
-  workflow_dispatch:        # Manual trigger from GitHub UI
+    - cron: '0 5 * * 1-6'   # 10AM PKT (UTC+5), Mon–Sat
+  workflow_dispatch:          # Manual trigger
 
 jobs:
   post-to-linkedin:
     runs-on: ubuntu-latest
+    timeout-minutes: 10       # ✅ Kill job if it hangs
 
     steps:
       - name: Checkout repo
@@ -18,18 +19,32 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: ${{ runner.os }}-pip-
+
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run LinkedIn Agent
+      - name: Skip if Sunday
+        run: |
+          DAY=$(date +%u)
+          if [ "$DAY" = "7" ]; then
+            echo "Sunday — skipping post."
+            exit 0
+          fi
+
+      - name: Run Mehfil Post Agent
         env:
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
         run: python agent.py
 
-      - name: Upload screenshot on failure
+      - name: Notify on failure
         if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: error-screenshot
-          path: error_screenshot.png
+        run: |
+          echo "❌ LinkedIn post failed on $(date)"
+          echo "Check logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
