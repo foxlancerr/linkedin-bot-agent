@@ -37,7 +37,6 @@
       min-height: 100vh;
     }
 
-    /* Grid lines background */
     body::before {
       content: '';
       position: fixed;
@@ -237,6 +236,53 @@
       color: var(--muted2);
     }
 
+    /* ── Warn block ── */
+    .warn-block {
+      background: rgba(245,158,11,0.06);
+      border: 1px solid rgba(245,158,11,0.2);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-top: 16px;
+      font-size: 14px;
+      color: var(--muted2);
+    }
+
+    /* ── Scope tag list ── */
+    .scope-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .scope-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 18px;
+    }
+
+    .scope-tag {
+      flex-shrink: 0;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      background: var(--tag-bg);
+      border: 1px solid rgba(10,102,194,0.25);
+      color: var(--tag-text);
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-top: 1px;
+    }
+
+    .scope-desc {
+      font-size: 13px;
+      color: var(--muted2);
+      line-height: 1.6;
+    }
+
     /* ── Footer ── */
     footer {
       margin-top: 64px;
@@ -273,8 +319,8 @@
     <div class="badge">Privacy Policy</div>
     <h1>LinkedIn Post Agent<br>Privacy Policy</h1>
     <div class="meta">
-      <span>Last updated: March 2026</span>
-      <span>Version 1.0</span>
+      <span>Last updated: April 2026</span>
+      <span>Version 1.1</span>
       <span>Personal Developer Tool</span>
     </div>
   </header>
@@ -294,6 +340,14 @@
       <li>
         <span class="icon ok">✓</span>
         OAuth tokens are stored as encrypted GitHub Actions secrets — never logged or exposed.
+      </li>
+      <li>
+        <span class="icon ok">✓</span>
+        Only two LinkedIn OAuth scopes are requested: <code style="font-family:'DM Mono',monospace;font-size:11px;color:var(--tag-text)">w_member_social</code> and <code style="font-family:'DM Mono',monospace;font-size:11px;color:var(--tag-text)">profile</code>.
+      </li>
+      <li>
+        <span class="icon ok">✓</span>
+        AI-generated posts are reviewed by the developer before publishing; no third-party data is used as input.
       </li>
       <li>
         <span class="icon no">✗</span>
@@ -334,15 +388,57 @@
         <div class="value">LinkedIn Official API v2</div>
       </div>
       <div class="info-card">
+        <div class="label">API endpoint</div>
+        <div class="value">POST /v2/ugcPosts</div>
+      </div>
+      <div class="info-card">
         <div class="label">Data collected</div>
         <div class="value">None from third parties</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Applicable regulation</div>
+        <div class="value">GDPR (EU-facing platform)</div>
       </div>
     </div>
   </section>
 
-  <!-- 2. Data collected -->
+  <!-- 2. OAuth Scopes & Permissions -->
   <section>
     <div class="section-num">02</div>
+    <h2>OAuth Scopes &amp; Permissions</h2>
+    <p>
+      This application requests the minimum LinkedIn OAuth 2.0 permissions necessary
+      to function. The following scopes are explicitly requested during authorization:
+    </p>
+    <div class="scope-list">
+      <div class="scope-item">
+        <span class="scope-tag">w_member_social</span>
+        <span class="scope-desc">Allows the application to create, update, and delete posts and shares on the authenticated member's LinkedIn profile. This is the only scope required to publish scheduled content.</span>
+      </div>
+      <div class="scope-item">
+        <span class="scope-tag">profile</span>
+        <span class="scope-desc">Allows the application to read the authenticated member's basic profile data, specifically the Person URN (unique identifier), which is required as the <code style="font-family:'DM Mono',monospace;font-size:11px;color:var(--tag-text)">author</code> field in every UGC post API call.</span>
+      </div>
+      <div class="scope-item">
+        <span class="scope-tag">openid</span>
+        <span class="scope-desc">Required by LinkedIn's OIDC flow to verify the identity of the authenticated account during the OAuth handshake. No profile data beyond identity confirmation is accessed.</span>
+      </div>
+      <div class="scope-item">
+        <span class="scope-tag">email</span>
+        <span class="scope-desc">Required alongside <code style="font-family:'DM Mono',monospace;font-size:11px;color:var(--tag-text)">openid</code> by LinkedIn's OIDC flow. The email address is not stored, logged, or used for any purpose beyond authentication.</span>
+      </div>
+    </div>
+    <div class="highlight">
+      No additional LinkedIn permissions are requested now or in the future without
+      updating this policy. Scopes such as <code style="font-family:'DM Mono',monospace;font-size:11px;color:var(--tag-text)">r_organization_social</code>,
+      <code style="font-family:'DM Mono',monospace;font-size:11px;color:var(--tag-text)">rw_organization_admin</code>, or any
+      advertising / analytics scopes are explicitly not requested and not used.
+    </div>
+  </section>
+
+  <!-- 3. Data collected -->
+  <section>
+    <div class="section-num">03</div>
     <h2>Data We Collect</h2>
     <p>
       This application does not collect personal data from any individual other than
@@ -358,8 +454,16 @@
         <div class="value">Used to authenticate API requests to LinkedIn on behalf of the account owner.</div>
       </div>
       <div class="info-card">
-        <div class="label">LinkedIn profile URN</div>
+        <div class="label">OAuth refresh token</div>
+        <div class="value">Used to obtain a new access token upon expiry without requiring manual re-authorization.</div>
+      </div>
+      <div class="info-card">
+        <div class="label">LinkedIn Person URN</div>
         <div class="value">A unique identifier required by the LinkedIn API to specify which account receives the post.</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Token expiry timestamp</div>
+        <div class="value">Used to determine when a token refresh is required before the next scheduled post.</div>
       </div>
     </div>
     <div class="highlight">
@@ -369,14 +473,47 @@
     </div>
   </section>
 
-  <!-- 3. How data is used -->
+  <!-- 4. Token Lifecycle & Expiry -->
   <section>
-    <div class="section-num">03</div>
+    <div class="section-num">04</div>
+    <h2>Token Lifecycle &amp; Expiry</h2>
+    <p>
+      LinkedIn OAuth access tokens issued under the standard authorization flow expire
+      after approximately 60 days. This application handles token expiry as follows:
+    </p>
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="label">Token expiry</div>
+        <div class="value">LinkedIn access tokens expire after ~60 days by default.</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Refresh handling</div>
+        <div class="value">Expired tokens are refreshed via the OAuth refresh token flow or re-authorized manually by the developer.</div>
+      </div>
+      <div class="info-card">
+        <div class="label">On revocation</div>
+        <div class="value">If access is revoked via LinkedIn's app settings, the stored GitHub secret is deleted within 7 days.</div>
+      </div>
+      <div class="info-card">
+        <div class="label">On app decommission</div>
+        <div class="value">All GitHub secrets holding tokens are permanently deleted when the application is retired.</div>
+      </div>
+    </div>
+    <div class="warn-block">
+      Token refresh operations are performed exclusively within the GitHub Actions
+      workflow environment. Refresh tokens are stored under the same security
+      constraints as access tokens — encrypted at rest, never logged.
+    </div>
+  </section>
+
+  <!-- 5. How data is used -->
+  <section>
+    <div class="section-num">05</div>
     <h2>How We Use LinkedIn Data</h2>
     <p>
       LinkedIn data is used exclusively for one purpose: publishing scheduled content
       to the authenticated account owner's own LinkedIn profile via the official
-      LinkedIn UGC Posts API endpoint.
+      LinkedIn UGC Posts API endpoint (<code style="font-family:'DM Mono',monospace;font-size:12px;color:var(--tag-text)">POST https://api.linkedin.com/v2/ugcPosts</code>).
     </p>
     <p>
       The application does not use LinkedIn data for analytics, advertising,
@@ -385,9 +522,9 @@
     </p>
   </section>
 
-  <!-- 4. Data storage & security -->
+  <!-- 6. Data storage & security -->
   <section>
-    <div class="section-num">04</div>
+    <div class="section-num">06</div>
     <h2>Data Storage &amp; Security</h2>
     <p>
       OAuth tokens are stored exclusively as encrypted secrets within GitHub Actions,
@@ -417,9 +554,42 @@
     </p>
   </section>
 
-  <!-- 5. Third-party services -->
+  <!-- 7. Security Breach Response -->
   <section>
-    <div class="section-num">05</div>
+    <div class="section-num">07</div>
+    <h2>Security Breach Response</h2>
+    <p>
+      In the event of a suspected or confirmed security incident affecting stored
+      credentials or OAuth tokens, the following steps will be taken immediately:
+    </p>
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="label">Step 1 — Rotate</div>
+        <div class="value">All affected GitHub secrets are immediately deleted and replaced with newly issued credentials.</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Step 2 — Revoke</div>
+        <div class="value">The compromised OAuth token is revoked via LinkedIn's app management settings.</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Step 3 — Review</div>
+        <div class="value">GitHub Actions workflow logs are audited to determine the scope and cause of the incident.</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Step 4 — Report</div>
+        <div class="value">If the incident involves LinkedIn account data, LinkedIn's developer support is notified promptly.</div>
+      </div>
+    </div>
+    <div class="warn-block">
+      Since this is a single-account personal tool, no external breach notification
+      to third parties is applicable. The developer (account owner) is simultaneously
+      the data subject and data controller.
+    </div>
+  </section>
+
+  <!-- 8. Third-party services -->
+  <section>
+    <div class="section-num">08</div>
     <h2>Third-Party Services</h2>
     <p>
       This application interacts with the following external services:
@@ -440,49 +610,86 @@
     </p>
   </section>
 
-  <!-- 6. Content generation -->
+  <!-- 9. AI-Generated Content -->
   <section>
-    <div class="section-num">06</div>
+    <div class="section-num">09</div>
     <h2>AI-Generated Content</h2>
     <p>
-      Post content is generated using an AI language model based on themes and
-      parameters configured by the developer. All generated content is reviewed
-      and approved by the developer before or as part of the scheduling process.
-      No personal data of any third party is used as input to the content
-      generation process.
+      Post content is generated using an AI language model (Anthropic Claude) based
+      on themes and parameters configured by the developer. The following commitments
+      apply to all AI-generated content published through this application:
     </p>
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="label">Review</div>
+        <div class="value">All AI-generated content is reviewed and approved by the developer before or during the scheduling process. No content is published fully autonomously without oversight.</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Input data</div>
+        <div class="value">No personal data of any third party is used as input to the content generation process. Only developer-defined topics and parameters are passed to the model.</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Labeling</div>
+        <div class="value">Where required by LinkedIn's platform policies or applicable guidelines, posts generated by AI will be disclosed as AI-assisted content.</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Model provider</div>
+        <div class="value">Content is generated via Anthropic's API, subject to <a href="https://www.anthropic.com/legal/privacy" target="_blank">Anthropic's Privacy Policy</a>. No conversation history or personal data is retained by the model beyond each API call.</div>
+      </div>
+    </div>
   </section>
 
-  <!-- 7. Your rights -->
+  <!-- 10. Your Rights (GDPR) -->
   <section>
-    <div class="section-num">07</div>
-    <h2>Your Rights</h2>
+    <div class="section-num">10</div>
+    <h2>Your Rights &amp; GDPR</h2>
     <p>
+      LinkedIn is an EU-facing platform and this application operates in compliance
+      with the General Data Protection Regulation (GDPR) to the extent applicable.
       Since this application does not collect data from any person other than the
-      developer who operates it, there is no third-party user data to access,
-      correct, or delete.
+      developer who operates it, the developer is simultaneously the data subject
+      and data controller.
     </p>
     <p>
-      If you believe this application has inadvertently collected data related to
-      you, please contact us using the details below and we will respond promptly.
+      As the sole data subject, the developer retains the following rights at all times:
     </p>
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="label">Right to access</div>
+        <div class="value">All stored data (OAuth tokens, Person URN) can be inspected directly in the GitHub repository secrets settings at any time.</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Right to deletion</div>
+        <div class="value">All stored credentials can be permanently deleted by removing the GitHub Actions secrets and revoking the LinkedIn OAuth token from LinkedIn's app settings.</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Right to revoke access</div>
+        <div class="value">LinkedIn API access can be revoked at any time by visiting <a href="https://www.linkedin.com/psettings/permitted-services" target="_blank">LinkedIn's permitted services page</a> and removing this application.</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Third-party inquiries</div>
+        <div class="value">If you believe this application has inadvertently collected data related to you, contact us at the address below and we will respond within 30 days.</div>
+      </div>
+    </div>
   </section>
 
-  <!-- 8. Changes -->
+  <!-- 11. Changes -->
   <section>
-    <div class="section-num">08</div>
+    <div class="section-num">11</div>
     <h2>Changes to This Policy</h2>
     <p>
       This privacy policy may be updated if the nature or scope of the application
-      changes. The "last updated" date at the top of this page will reflect any
-      revisions. Continued use of the application after changes constitutes
+      changes — for example, if new LinkedIn API scopes are requested, a new
+      third-party service is integrated, or the application is made available to
+      additional users. The "last updated" date at the top of this page will reflect
+      any revisions. Continued use of the application after changes constitutes
       acceptance of the updated policy.
     </p>
   </section>
 
-  <!-- 9. Contact -->
+  <!-- 12. Contact -->
   <section>
-    <div class="section-num">09</div>
+    <div class="section-num">12</div>
     <h2>Contact</h2>
     <p>
       For any questions or concerns about this privacy policy or the application,
@@ -513,7 +720,7 @@
 <footer>
   <div class="wrap" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;padding-top:0;padding-bottom:40px">
     <p>© 2026 LinkedIn Post Agent · Personal Developer Tool · All rights reserved</p>
-    <span class="footer-tag">v1.0 · March 2026</span>
+    <span class="footer-tag">v1.1 · April 2026</span>
   </div>
 </footer>
 
