@@ -6,7 +6,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 
 from config.generator import generate_post_stream
-from config.formatter import format_for_linkedin
+
 from config.hooks import improve_hook
 
 load_dotenv()
@@ -64,14 +64,12 @@ if __name__ == "__main__":
     print(f"🤖 Agent started at {datetime.now()}")
 
     # 1. Generate post
-    raw_post = generate_post_stream()
+    final_post = generate_post_stream()
 
     # 2. Improve hook
-    improved = improve_hook(raw_post)
+    # final_post = improve_hook(raw_post)
 
-    # 3. Format for LinkedIn
-    final_post = format_for_linkedin(improved)
-
+ 
     print("\n🚀 FINAL POST:\n")
     print(final_post)
 

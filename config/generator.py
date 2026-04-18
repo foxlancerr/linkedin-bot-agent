@@ -166,7 +166,7 @@ def generate_post_stream() -> str:
 
     prompt = build_generation_prompt(day, theme_data, is_technical)
 
-    generate_post(prompt)
+    return generate_post(prompt)
 
    
 

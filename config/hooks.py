@@ -30,6 +30,6 @@ def improve_hook(text: str) -> str:
     # Remove trailing question mark on hook
     if hook.endswith("?"):
         hook = hook.rstrip("?") + "."
-
+        
     lines[0] = hook
     return "\n".join(lines)

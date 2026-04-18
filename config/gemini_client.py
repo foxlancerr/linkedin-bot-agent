@@ -70,7 +70,11 @@ def generate_post(prompt: str) -> str:
             thinking_level="LOW"
 
         ),
-        system_instruction= ENGAGEMENT_SYSTEM_PROMPT
+        system_instruction= ENGAGEMENT_SYSTEM_PROMPT,
+        temperature=0.8,    # Increases variety
+        top_p=0.95,         # Picks from the most likely 95% of words
+        top_k=40,           # Considers 40 possible next words
+        candidate_count=1,
     )
 
     result = ""
@@ -82,7 +86,4 @@ def generate_post(prompt: str) -> str:
     ):
         if chunk.text:
             result += chunk.text
-
-
-    print(result)
     return result
