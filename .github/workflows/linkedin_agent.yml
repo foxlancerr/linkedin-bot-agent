@@ -2,7 +2,7 @@ name: LinkedIn Auto Post Agent
 
 on:
   schedule:
-    - cron: '0 5 * * 1-6'   # 10:00 AM PKT (UTC+5), Mon–Sat
+    - cron: '0 3 * * 1-6'   # 10:00 AM PKT (UTC+5), Mon–Sat
   workflow_dispatch:
 
 jobs:

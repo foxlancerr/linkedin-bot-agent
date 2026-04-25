@@ -74,6 +74,6 @@ if __name__ == "__main__":
     print(final_post)
 
     # 4. Post to LinkedIn
-    # post_to_linkedin(final_post)
+    post_to_linkedin(final_post)
 
     print(f"🏁 Finished at {datetime.now()}")
