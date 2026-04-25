@@ -2,49 +2,61 @@ name: LinkedIn Auto Post Agent
 
 on:
   schedule:
-    - cron: '0 5 * * 1-6'   # 10AM PKT (UTC+5), Mon–Sat
-  workflow_dispatch:          # Manual trigger
+    - cron: '0 5 * * 1-6'   # 10:00 AM PKT (UTC+5), Mon–Sat
+  workflow_dispatch:
 
 jobs:
   post-to-linkedin:
     runs-on: ubuntu-latest
-    timeout-minutes: 10       # ✅ Kill job if it hangs
+    timeout-minutes: 10
 
     steps:
-      - name: Checkout repo
+      # 📦 Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 🐍 Setup Python
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
+      # ⚡ Cache dependencies for faster runs
       - name: Cache pip dependencies
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-          restore-keys: ${{ runner.os }}-pip-
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
+      # 📥 Install dependencies
       - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Skip if Sunday
         run: |
-          DAY=$(date +%u)
-          if [ "$DAY" = "7" ]; then
-            echo "Sunday — skipping post."
-            exit 0
-          fi
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      - name: Run Mehfil Post Agent
+      # 🚀 Run your agent (with retry logic)
+      - name: Run LinkedIn Post Agent
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
-        run: python agent.py
+        run: |
+          for i in 1 2 3; do
+            echo "Attempt $i..."
+            python agent.py && break
+            echo "Retry $i failed, retrying in 10 seconds..."
+            sleep 10
+          done
 
-      - name: Notify on failure
+      # ❌ Notify on failure
+      - name: Notify failure
         if: failure()
         run: |
           echo "❌ LinkedIn post failed on $(date)"
           echo "Check logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+      # ✅ Optional: Success log
+      - name: Notify success
+        if: success()
+        run: echo "✅ LinkedIn post successful at $(date)"
