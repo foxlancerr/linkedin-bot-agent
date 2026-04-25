@@ -7,110 +7,69 @@ from google import genai as google_genai
 from google.genai import types
 from config.gemini_client import generate_post
 
-# ─── CLIENT SETUP ─────────────────────────────────────
-client = google_genai.Client(
-    api_key=os.environ.get("GEMINI_API_KEY")
-)
-
-MODEL = "gemini-2.0-flash"
-
-# ─── SYSTEM PROMPT ────────────────────────────────────
-ENGAGEMENT_SYSTEM_PROMPT = """
-You are a LinkedIn viral content strategist + psychographic expert.
-You understand what makes professionals STOP scrolling and FEEL something.
-
-PSYCHOLOGY RULES:
-- Trigger curiosity gap: reader must feel "I need to finish this"
-- Use social proof or pattern recognition ("I've seen this across 50+ teams")
-- Make them feel SEEN, not lectured
-- One insight only — depth beats breadth
-
-HOOK FORMULA (pick one):
-- Pain: "X is killing your [outcome] and you don't see it yet."
-- Contrarian: "Everyone optimizes X. Nobody fixes Y. Y is the problem."
-- Specific loss: "I lost [X] doing what every tutorial recommends."
-- Pattern break: "3 years. 40 codebases. Same mistake. Every time."
-
-STRUCTURE (strict):
-Line 1: Hook (≤10 words, no emoji, no question)
-Line 2-3: Problem evidence (specific, not abstract)
-Line 4-5: Reframe (the insight)
-Line 6: Stakes (why it matters now)
-Line 7: CTA — one of: "Save this." / "Which one are you?" / "Seen this too?"
-
-PROHIBITIONS:
-- No emojis
-- No "In today's world" / "Let's be honest" / "Game changer"
-- No passive voice
-- No more than 3 sentences per paragraph
-- No abstract claims without a specific example
-
-LENGTH: 120-180 words MAX
-HASHTAGS: 5-7 only, lowercase, relevant
-ALWAYS END WITH: #MuhammadAsim #MehfilAI
-"""
-
 # ─── DAY THEMES ───────────────────────────────────────
 DAY_THEMES = {
     "Monday": {
-        "category": "real career mistake or industry truth",
-        "hook_type": "specific_loss",
-        "angle": "emotional developer story tied to industry reality — layoffs, wrong tech stack choice, over-engineering, burnout",
-        "seed": "I wasted 2 years on the wrong stack, got laid off after over-engineering, burned out chasing senior title",
-        "industry_tie": "current job market, tech layoffs 2024-2025, hiring freeze reality",
-        "example_hook": "I got laid off 3 days after my best performance review."
+        "category": "The Human Code (Motivation)",
+        "hook_type": "vulnerability",
+        "angle": "Consistency over talent. Why your first language doesn't matter as much as your first logic loop.",
+        "seed": "I struggled with C++ pointers for a month, why Python isn't 'cheating,' the first app I built was 100 lines of spaghetti code",
+        "industry_tie": "learning to learn, mindset, beginner path",
+        "example_hook": "Your first 1000 lines of code will be terrible."
     },
     "Tuesday": {
-        "category": "AI tools changing how developers actually work",
-        "hook_type": "contrarian",
-        "angle": "how real teams are using Cursor, Copilot, Claude, v0 in production — not demos, real workflows",
-        "seed": "Cursor replacing junior devs, Claude for code review, Copilot making devs slower not faster, vibe coding consequences",
-        "industry_tie": "AI replacing entry-level roles, developer productivity debate, vibe coding trend 2025",
-        "example_hook": "Cursor didn't make our team faster. It made our codebase worse."
+        "category": "The AI Language Tutor",
+        "hook_type": "observation",
+        "angle": "Using AI (Cursor/Claude) to explain the 'DNA' of code. Teaching how to ask 'Why' instead of 'Write'.",
+        "seed": "Using Claude to explain recursion like a story, why AI is the best pair programmer for students, moving from syntax to architecture",
+        "industry_tie": "AI literacy, junior dev 2.0, deep learning",
+        "example_hook": "Stop using AI to write code. Use it to understand code."
     },
     "Wednesday": {
-        "category": "system design or architecture decision with real cost",
-        "hook_type": "pattern_break",
-        "angle": "architectural mistake that looks smart but breaks at scale — microservices too early, wrong DB choice, API design debt",
-        "seed": "microservices killed our startup velocity, we moved back to monolith, chose MongoDB and regretted it",
-        "industry_tie": "startups vs big tech architecture, cost of cloud bills, engineering efficiency trend",
-        "example_hook": "We split into 12 microservices at 3 engineers. It nearly killed the company."
+        "category": "The Logic Blueprint (All Languages)",
+        "hook_type": "simplification",
+        "angle": "Explaining universal concepts (Arrays, Loops, Objects) using analogies. Showing that 'Logic is Language-Agnostic'.",
+        "seed": "An Array is just a bookshelf, a Variable is a labeled box, think of an Object like a person with properties (name, height)",
+        "industry_tie": "CS fundamentals, mental models, cross-language skills",
+        "example_hook": "If you master logic, you can learn any language in a week."
     },
     "Thursday": {
-        "category": "industry shift — what skills actually matter in 2025",
-        "hook_type": "assumption_challenge",
-        "angle": "what the job market, AI, and product-focused engineering means for developer careers right now",
-        "seed": "full-stack is dead, T-shaped skills, prompt engineering as core skill, product engineers replacing pure devs",
-        "industry_tie": "hiring trends 2025, AI-era developer skills, what companies actually pay for now",
-        "example_hook": "Companies stopped hiring developers. They started hiring product engineers."
+        "category": "The Agentic Shift",
+        "hook_type": "visionary",
+        "angle": "Education on 'Agentic Logic'. How we go from 'If/Else' to 'Autonomous Reasoning'.",
+        "seed": "Why agents are the next step after Web Dev, building logic loops in MehfilAI, the difference between a script and an agent",
+        "industry_tie": "Agentic AI wave 2026, future-proofing, AI Orchestration",
+        "example_hook": "We are moving from writing code to managing intelligence."
     },
     "Friday": {
-        "category": "concrete technical insight with measurable result",
-        "hook_type": "specific_loss",
-        "angle": "one specific optimization or fix with real measurable impact — DB query, API performance, React render, cost reduction",
-        "seed": "N+1 query costing $3k/month, one index cutting response time 10x, removing useEffect fixing entire UX",
-        "industry_tie": "engineering efficiency, cloud cost reduction trend, performance as product feature",
-        "example_hook": "One missing database index was costing us $2,800 a month."
+        "category": "The 'Real World' Portfolio",
+        "hook_type": "pattern_break",
+        "angle": "Teaching the youth to build 'Full-Stack' projects that solve local problems in Islamabad.",
+        "seed": "Build a tracking app for the Metro, a transparency tool for your school, why one 'real' app beats 10 certificates",
+        "industry_tie": "hiring reality, building in public, portfolio strategy",
+        "example_hook": "Recruiters don't care about your GPA. They care about your GitHub."
     },
     "Saturday": {
-        "category": "what AI agents and automation are doing to the industry RIGHT NOW",
-        "hook_type": "observation",
-        "angle": "real patterns from teams building with LLMs, agents, RAG — not theory, actual production lessons",
-        "seed": "agent loops failing silently, RAG garbage in garbage out, LLM cost spiraling, one prompt replacing pipelines",
-        "industry_tie": "agentic AI wave 2025, AI startups failing, LLM in production reality vs hype",
-        "example_hook": "We built a 6-agent pipeline. A single prompt replaced it."
+        "category": "Mehfil Culture & Community",
+        "hook_type": "emotional_connection",
+        "angle": "The social side of coding. Why the best engineers are the ones who can explain their code to others.",
+        "seed": "Why I started MehfilAI, finding your tribe, tech is a team sport, the 'Big Brother' energy in Islamabad tech",
+        "industry_tie": "networking, soft skills, community growth",
+        "example_hook": "The best code is written in a room full of friends."
     },
 }
 
 TRENDING_OVERLAYS = [
-    "vibe coding consequences in production",
-    "AI replacing junior developer roles",
-    "tech layoffs and what survives them",
-    "moving back from microservices to monolith",
-    "Claude vs GPT-4 in real workflows",
-    "developer burnout at AI-era pace",
-    "prompt engineering as a core engineering skill",
-    "cost of cloud bills killing startups",
+    "why junior developers must become 'AI Architects' today",
+    "the end of the 'Tutorial Hell' era for Pakistani youth",
+    "building in public: why your GitHub is your real degree",
+    "how to use AI to read 1000 pages of documentation in 5 minutes",
+    "the shift from 'Syntax' to 'Logic': why the language doesn't matter",
+    "Agentic AI: moving from writing code to managing intelligence",
+    "The 'Dhaba' guide to System Design: simple analogies for big tech",
+    "Product Engineering: why the best devs solve business problems",
+    "Vibe coding vs. Deep understanding: how to stay relevant in 2026",
+    "Mehfil culture: why networking in Islamabad is your secret weapon",
 ]
 
 
@@ -131,31 +90,47 @@ def get_todays_theme():
 # ─── PROMPT BUILDER ───────────────────────────────────
 def build_generation_prompt(day: str, theme_data: dict, is_technical: bool) -> str:
     trending = random.choice(TRENDING_OVERLAYS)
-
+    
     hashtag_instruction = (
-        "5-7 hashtags, lowercase, relevant to topic. Always end with #MuhammadAsim #MehfilAI"
+        "5-7 hashtags, lowercase. Always end with #MuhammadAsim #MehfilAI"
         if is_technical else
         "3-4 hashtags max. Always end with #MuhammadAsim #MehfilAI"
     )
 
-    return f"""DAY: {day}
-TOPIC: {theme_data['category']}
-ANGLE: {theme_data['angle']}
-HOOK TYPE: {theme_data['hook_type']}
-SEED IDEAS: {theme_data['seed']}
-TRENDING OVERLAY: weave this in naturally — {trending}
-EXAMPLE HOOK: {theme_data['example_hook']}
 
-WRITE ONE LINKEDIN POST:
-- Hook: ≤10 words, {theme_data['hook_type']} style, no emoji, no question
-- Body: specific insight, one idea only, 120-180 words total
-- CTA: natural, one line ("Save this." or "Which camp are you in?")
-- Hashtags: {hashtag_instruction}
-- Tone: peer-to-peer, direct, no jargon
-- Code block: only if it proves the point in ≤8 lines
+    return f"""
+ROLE:
+You are Muhammad Asim, a Software Architect & Industrial Psychologist. You don't just "post"; you build systems of thought that solve professional frustrations. You are the "Big Brother" of Pakistani Tech, translating complex AI into human logic.
+
+PSYCHOLOGICAL FRAMEWORK:
+1. THE VULNERABILITY GAP: Start with a technical "scar." A bug that broke you, a deadline missed, or a prompt that failed. This kills the "AI-bot" feel.
+2. THE US VS. THEM LOGIC: Old Way = Manual, Burnout, Brute-force. New Way = Agentic, Orchestrated, Intelligent. 
+3. THE "SEE MORE" MYSTERY: Lines 1-3 must contain a "Conflict" and a "Closer." The reader must feel that the solution is hidden behind that click.
+
+POST STRUCTURE (Strict 120-180 words):
+- THE HOOK (1-10 words): A confession or a contrarian truth. No emojis. No questions.
+- THE FRICTION (30-40 words): Describe the "Messy Middle." The specific struggle in building Agentic AI or Full-stack apps.
+- THE MENTAL MODEL (40-50 words): Use a local analogy (Dhaba waiter, Metro traffic, Bazaar bargaining) to explain a technical concept. This is where you EDUCATE.
+- THE REFRAME (20-30 words): Show why this logic applies to Python, JS, and C++ equally. Logic is the DNA; syntax is just the skin.
+- THE PAYOFF (30-40 words): 3 punchy, "Save-worthy" bullet points (-) for the youth.
+- THE LOW-FRICTION CTA (10-15 words): A status-check question (e.g., "Are you building for speed or building for trust?").
+
+LINGUISTIC RULES:
+- Grade 8 Simplicity: Use "Build" over "Implement." Use "Fix" over "Optimize."
+- 5-Word Explainer: If you use a tech term (e.g., 'RAG'), explain it in 5 words in parentheses immediately after.
+- Banned Terms: "In today's world," "Unlock," "Harness," "Game-changer," "Dive deep."
+- Formatting: No Emojis. Use line breaks for visual breathing.
+
+CONTEXT:
+- DAY: {day}
+- TOPIC: {theme_data['category']}
+- ANGLE: {theme_data['angle']}
+- SEED: {theme_data['seed']}
+- TRENDING OVERLAY: {trending}
+
+{hashtag_instruction}
 
 DO NOT explain your choices. Output the post only."""
-
 
 # ─── STREAM GENERATOR ─────────────────────────────────
 def generate_post_stream() -> str:
