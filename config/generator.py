@@ -10,66 +10,79 @@ from config.gemini_client import generate_post
 # ─── DAY THEMES ───────────────────────────────────────
 DAY_THEMES = {
     "Monday": {
-        "category": "The Human Code (Motivation)",
+        "category": "Engineering Growth & Ownership",
         "hook_type": "vulnerability",
-        "angle": "Consistency over talent. Why your first language doesn't matter as much as your first logic loop.",
-        "seed": "I struggled with C++ pointers for a month, why Python isn't 'cheating,' the first app I built was 100 lines of spaghetti code",
-        "industry_tie": "learning to learn, mindset, beginner path",
-        "example_hook": "Your first 1000 lines of code will be terrible."
+        "angle": "Lessons learned from working on real production systems and taking ownership of engineering decisions.",
+        "seed": "handling production bugs, taking responsibility for deployments, moving from coding tasks to owning features, learning from real failures",
+        "industry_tie": "engineering growth, ownership, professional development",
+        "example_hook": "Writing code is easy. Owning systems is not."
     },
-    "Tuesday": {
-        "category": "The AI Language Tutor",
-        "hook_type": "observation",
-        "angle": "Using AI (Cursor/Claude) to explain the 'DNA' of code. Teaching how to ask 'Why' instead of 'Write'.",
-        "seed": "Using Claude to explain recursion like a story, why AI is the best pair programmer for students, moving from syntax to architecture",
-        "industry_tie": "AI literacy, junior dev 2.0, deep learning",
-        "example_hook": "Stop using AI to write code. Use it to understand code."
-    },
-    "Wednesday": {
-        "category": "The Logic Blueprint (All Languages)",
-        "hook_type": "simplification",
-        "angle": "Explaining universal concepts (Arrays, Loops, Objects) using analogies. Showing that 'Logic is Language-Agnostic'.",
-        "seed": "An Array is just a bookshelf, a Variable is a labeled box, think of an Object like a person with properties (name, height)",
-        "industry_tie": "CS fundamentals, mental models, cross-language skills",
-        "example_hook": "If you master logic, you can learn any language in a week."
-    },
-    "Thursday": {
-        "category": "The Agentic Shift",
-        "hook_type": "visionary",
-        "angle": "Education on 'Agentic Logic'. How we go from 'If/Else' to 'Autonomous Reasoning'.",
-        "seed": "Why agents are the next step after Web Dev, building logic loops in MehfilAI, the difference between a script and an agent",
-        "industry_tie": "Agentic AI wave 2026, future-proofing, AI Orchestration",
-        "example_hook": "We are moving from writing code to managing intelligence."
-    },
-    "Friday": {
-        "category": "The 'Real World' Portfolio",
-        "hook_type": "pattern_break",
-        "angle": "Teaching the youth to build 'Full-Stack' projects that solve local problems in Islamabad.",
-        "seed": "Build a tracking app for the Metro, a transparency tool for your school, why one 'real' app beats 10 certificates",
-        "industry_tie": "hiring reality, building in public, portfolio strategy",
-        "example_hook": "Recruiters don't care about your GPA. They care about your GitHub."
-    },
-    "Saturday": {
-        "category": "Mehfil Culture & Community",
-        "hook_type": "emotional_connection",
-        "angle": "The social side of coding. Why the best engineers are the ones who can explain their code to others.",
-        "seed": "Why I started MehfilAI, finding your tribe, tech is a team sport, the 'Big Brother' energy in Islamabad tech",
-        "industry_tie": "networking, soft skills, community growth",
-        "example_hook": "The best code is written in a room full of friends."
-    },
-}
 
+    "Tuesday": {
+        "category": "Frontend Architecture (Real Systems)",
+        "hook_type": "observation",
+        "angle": "Breaking down scalable frontend architecture decisions in real-world applications.",
+        "seed": "designing API layers in Next.js, structuring reusable components, managing state at scale, avoiding tight coupling in frontend systems",
+        "industry_tie": "frontend architecture, scalability, system design",
+        "example_hook": "Frontend architecture problems don’t appear in small projects."
+    },
+
+    "Wednesday": {
+        "category": "Authentication & API Systems",
+        "hook_type": "simplification",
+        "angle": "Explaining how authentication and API integrations work in real production environments.",
+        "seed": "implementing NextAuth, signature-based authentication, handling API failures, managing secure user sessions",
+        "industry_tie": "security engineering, APIs, backend integration",
+        "example_hook": "Authentication works fine until real users break it."
+    },
+
+    "Thursday": {
+        "category": "Performance & System Design",
+        "hook_type": "visionary",
+        "angle": "Understanding how real applications scale and where performance bottlenecks appear.",
+        "seed": "optimizing Next.js apps, handling large datasets, improving CI/CD pipelines, reducing latency in real systems",
+        "industry_tie": "performance, scalability, system design",
+        "example_hook": "Most performance problems are architecture problems."
+    },
+
+    "Friday": {
+        "category": "Product Engineering & Analytics",
+        "hook_type": "pattern_break",
+        "angle": "Building products based on real user behavior instead of assumptions.",
+        "seed": "using PostHog analytics, tracking feature adoption, improving onboarding flows, making data-driven decisions",
+        "industry_tie": "product engineering, analytics, user behavior",
+        "example_hook": "Features don’t matter if users don’t use them."
+    },
+
+    "Saturday": {
+        "category": "AI Systems & Automation",
+        "hook_type": "insight",
+        "angle": "Applying AI in real-world systems instead of just generating code.",
+        "seed": "building AI agents, integrating LLMs, automating workflows, handling AI limitations in production",
+        "industry_tie": "AI engineering, automation, applied AI",
+        "example_hook": "AI becomes useful only when it is part of a system."
+    },
+
+    "Sunday": {
+        "category": "Web3 Engineering & Wallet Systems",
+        "hook_type": "analysis",
+        "angle": "Exploring real challenges in web3 integrations and blockchain user experience.",
+        "seed": "MetaMask integration issues, WalletConnect flows, signature-based authentication, improving wallet onboarding UX",
+        "industry_tie": "web3, blockchain UX, authentication systems",
+        "example_hook": "Web3 breaks when real users try to use it."
+    }
+}
 TRENDING_OVERLAYS = [
-    "why junior developers must become 'AI Architects' today",
-    "the end of the 'Tutorial Hell' era for Pakistani youth",
-    "building in public: why your GitHub is your real degree",
-    "how to use AI to read 1000 pages of documentation in 5 minutes",
-    "the shift from 'Syntax' to 'Logic': why the language doesn't matter",
-    "Agentic AI: moving from writing code to managing intelligence",
-    "The 'Dhaba' guide to System Design: simple analogies for big tech",
-    "Product Engineering: why the best devs solve business problems",
-    "Vibe coding vs. Deep understanding: how to stay relevant in 2026",
-    "Mehfil culture: why networking in Islamabad is your secret weapon",
+    "why real production systems matter more than tutorials",
+    "the shift from frontend developer to full-stack ownership",
+    "why system design matters more than syntax",
+    "how AI is changing real-world software engineering",
+    "building scalable applications instead of demo projects",
+    "from writing code to designing systems",
+    "why production experience defines real engineers",
+    "applied AI vs theoretical AI in real applications",
+    "why most applications fail at scale",
+    "engineering decisions that impact long-term maintainability",
 ]
 
 
@@ -97,40 +110,67 @@ def build_generation_prompt(day: str, theme_data: dict, is_technical: bool) -> s
         "3-4 hashtags max. Always end with #MuhammadAsim #MehfilAI"
     )
 
-
     return f"""
-ROLE:
-You are Muhammad Asim, a Software Architect & Industrial Psychologist. You don't just "post"; you build systems of thought that solve professional frustrations. You are the "Big Brother" of Pakistani Tech, translating complex AI into human logic.
+IDENTITY (STRICT):
+You are Muhammad Asim, a Full Stack Engineer specializing in:
+- Next.js, React, TypeScript
+- AI systems (LLMs, agents, automation)
+- Web3 integrations (MetaMask, WalletConnect, Phantom)
+- Real-time systems and scalable architectures
 
-PSYCHOLOGICAL FRAMEWORK:
-1. THE VULNERABILITY GAP: Start with a technical "scar." A bug that broke you, a deadline missed, or a prompt that failed. This kills the "AI-bot" feel.
-2. THE US VS. THEM LOGIC: Old Way = Manual, Burnout, Brute-force. New Way = Agentic, Orchestrated, Intelligent. 
-3. THE "SEE MORE" MYSTERY: Lines 1-3 must contain a "Conflict" and a "Closer." The reader must feel that the solution is hidden behind that click.
+REAL EXPERIENCE:
+- Built production SaaS applications
+- Implemented signature-based authentication using NextAuth
+- Integrated multiple AI providers into real systems
+- Built embeddable widget architectures
+- Developed CI/CD pipelines
+- Used PostHog analytics for product decisions
 
-POST STRUCTURE (Strict 120-180 words):
-- THE HOOK (1-10 words): A confession or a contrarian truth. No emojis. No questions.
-- THE FRICTION (30-40 words): Describe the "Messy Middle." The specific struggle in building Agentic AI or Full-stack apps.
-- THE MENTAL MODEL (40-50 words): Use a local analogy (Dhaba waiter, Metro traffic, Bazaar bargaining) to explain a technical concept. This is where you EDUCATE.
-- THE REFRAME (20-30 words): Show why this logic applies to Python, JS, and C++ equally. Logic is the DNA; syntax is just the skin.
-- THE PAYOFF (30-40 words): 3 punchy, "Save-worthy" bullet points (-) for the youth.
-- THE LOW-FRICTION CTA (10-15 words): A status-check question (e.g., "Are you building for speed or building for trust?").
+CONTENT RULES:
+- Only write about real software engineering experience
+- Do NOT include generic motivation or life advice
+- Do NOT use analogies or storytelling metaphors
+- Do NOT invent fake scenarios
+- Keep tone professional and engineering-focused
+
+ENGINEERING FRAMEWORK:
+1. REAL PROBLEM: Start with a real issue from production, architecture, or development.
+2. DECISION / TRADEOFF: Show what was difficult or unclear.
+3. RESOLUTION: Explain what worked and why.
+4. INSIGHT: Generalize into an engineering principle.
+
+POST STRUCTURE (Strict 120–180 words):
+- HOOK (1–10 words): Strong statement, no question
+- PROBLEM (30–40 words): Real engineering issue
+- INSIGHT (40–50 words): Technical explanation or decision
+- PAYOFF (30–40 words): 3 bullet points with actionable lessons
+- CTA (10–15 words): Short reflective question
+
+DEPTH REQUIREMENT:
+Include at least ONE:
+- Production issue
+- Scaling challenge
+- Technical tradeoff
+- Implementation detail
 
 LINGUISTIC RULES:
-- Grade 8 Simplicity: Use "Build" over "Implement." Use "Fix" over "Optimize."
-- 5-Word Explainer: If you use a tech term (e.g., 'RAG'), explain it in 5 words in parentheses immediately after.
-- Banned Terms: "In today's world," "Unlock," "Harness," "Game-changer," "Dive deep."
-- Formatting: No Emojis. Use line breaks for visual breathing.
+- Simple and direct language
+- No buzzwords or hype
+- No emojis
+- No cultural/local references
+- Avoid banned phrases: "In today's world", "Unlock", "Game-changer"
 
 CONTEXT:
 - DAY: {day}
-- TOPIC: {theme_data['category']}
+- CATEGORY: {theme_data['category']}
 - ANGLE: {theme_data['angle']}
 - SEED: {theme_data['seed']}
-- TRENDING OVERLAY: {trending}
+- TRENDING: {trending}
 
 {hashtag_instruction}
 
-DO NOT explain your choices. Output the post only."""
+OUTPUT ONLY THE FINAL POST.
+"""
 
 # ─── STREAM GENERATOR ─────────────────────────────────
 def generate_post_stream() -> str:
